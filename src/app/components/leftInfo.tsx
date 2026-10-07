@@ -12,7 +12,7 @@ export default function LeftInfo({ stats, album, frame, total }: leftInfoProps) 
     return (
         <div className="pointer-events-none">
             {/* Escritorio: datos de la toma en un panel a la izquierda */}
-            <div className=" bg-linear-to-r from-black/75 to-transparent hidden md:grid grid-rows-3 absolute inset-y-0 left-0 w-40 z-20 pl-5">
+            <div className=" bg-linear-to-r  hidden md:grid grid-rows-3 absolute inset-y-0 left-0 w-40 z-20 pl-5">
                 <div className="row-start-2">
                     <Info title="SHUTTER" data={stats.shutter} />
                     <Info title="APERTURE" data={stats.aperture} />
