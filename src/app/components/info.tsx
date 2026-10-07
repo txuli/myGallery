@@ -10,7 +10,8 @@ const  Info:React.FC<infoProps>=({title,data}) => {
             <h4 className="text-[13px] text-gray-400/50">
                 {title}
             </h4>
-            <p>
+            {/* La key relanza la animación cada vez que cambia el dato */}
+            <p key={data} className="animate-hud-in motion-reduce:animate-none">
                 {data}
             </p>
         </div>
