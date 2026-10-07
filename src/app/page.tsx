@@ -10,7 +10,8 @@ const mockPhoto: Photo = {
   highSrc: mock.src,
   width: mock.width,
   height: mock.height,
-  stats: { shutter: "1/50", aperture: "f/8", iso: "100", focal: "50mm", lens: "test", format: "ARW", megapixels: "23 MP" },
+  minuteOfDay: null,
+  stats: { time: "12:00", shutter: "1/50", aperture: "f/8", iso: "100", focal: "50mm", lens: "test", format: "ARW", megapixels: "23 MP" },
 };
 
 export default async function Home() {

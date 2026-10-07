@@ -9,6 +9,8 @@ export interface ImmichAsset {
     type: string
     originalFileName: string
     thumbhash: string | null
+    
+    localDateTime?: string | null
     exifInfo?: {
         exifImageWidth?: number | null
         exifImageHeight?: number | null
@@ -31,14 +33,16 @@ export interface Photo {
     highSrc: string
     width: number
     height: number
+    
+    minuteOfDay: number | null
     stats: PhotoStats
 }
 
-// Etiqueta que marca un álbum como visible en la web: basta con escribirla en su descripción en Immich
+
 const PUBLIC_TAG = "#portfolio"
 
-// Cada cuánto se vuelve a preguntar a Immich por el contenido de los álbumes (segundos)
-const ALBUM_REVALIDATE = 0
+
+const ALBUM_REVALIDATE = 200
 
 export function immichFetch(path: string, init?: RequestInit) {
     const baseUrl = process.env.IMMICH_URL
@@ -52,7 +56,7 @@ export function immichFetch(path: string, init?: RequestInit) {
     })
 }
 
-// Álbumes que la web puede mostrar: los que lleven PUBLIC_TAG en la descripción
+
 async function getPublicAlbums() {
     const res = await immichFetch("/albums", {
         headers: { Accept: "application/json" },
@@ -110,8 +114,14 @@ function toPhoto(asset: ImmichAsset, album: string): Photo {
         lowSrc: photoUrl(asset.id, "thumbnail"),
         highSrc: photoUrl(asset.id, "preview"),
         ...getDisplaySize(asset),
+        minuteOfDay: getMinuteOfDay(asset),
         stats: getStats(asset),
     }
+}
+
+function getMinuteOfDay(asset: ImmichAsset) {
+    const time = asset.localDateTime?.match(/T(\d{2}):(\d{2})/)
+    return time ? Number(time[1]) * 60 + Number(time[2]) : null
 }
 
 // Dimensiones tal y como se ve la foto. El EXIF guarda las del archivo en bruto:
@@ -123,7 +133,7 @@ function getDisplaySize(asset: ImmichAsset) {
     return rotated ? { width: height, height: width } : { width, height }
 }
 
-// Datos de la toma ya formateados para el HUD
+// Datos de la toma ya formateados para el HUD. Si la foto no trae un dato, se pone una broma en su lugar
 function getStats(asset: ImmichAsset) {
     const exif = asset.exifInfo ?? {}
     const megapixels = exif.exifImageWidth && exif.exifImageHeight
@@ -131,13 +141,14 @@ function getStats(asset: ImmichAsset) {
         : null
     const extension = asset.originalFileName.includes(".") ? asset.originalFileName.split(".").pop() : null
     return {
-        shutter: exif.exposureTime ?? "—",
-        aperture: exif.fNumber ? `f/${exif.fNumber}` : "—",
-        iso: exif.iso ? String(exif.iso) : "—",
-        focal: exif.focalLength ? `${Math.round(exif.focalLength)}mm` : "—",
-        lens: exif.lensModel ?? "—",
-        format: extension?.toUpperCase() ?? "—",
-        megapixels: megapixels ? `${megapixels} MP` : "—",
+        time: asset.localDateTime?.match(/T(\d{2}:\d{2})/)?.[1] ?? "who knows",
+        shutter: exif.exposureTime ?? "one blink",
+        aperture: exif.fNumber ? `f/${exif.fNumber}` : "f/pupil",
+        iso: exif.iso ? String(exif.iso) : "pure vibes",
+        focal: exif.focalLength ? `${Math.round(exif.focalLength)}mm` : "arm's length",
+        lens: exif.lensModel ?? "your own eye",
+        format: extension?.toUpperCase() ?? "???",
+        megapixels: megapixels ? `${megapixels} MP` : "∞ MP",
     }
 }
 

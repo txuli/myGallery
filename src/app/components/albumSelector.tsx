@@ -11,7 +11,7 @@ export default function AlbumSelector({ albums, selected, onSelect }: albumSelec
         ...albums.map(album => ({ label: album, value: album })),
     ]
     return (
-        <nav aria-label="Álbumes" className="col-span-2 col-start-2 flex items-baseline justify-center gap-1 overflow-x-auto scrollbar-none text-sm pointer-events-auto h-fit">
+        <nav aria-label="Álbumes" className="col-span-2 row-start-2 flex items-baseline justify-start gap-1 md:col-start-2 md:row-start-1 md:justify-center overflow-x-auto scrollbar-none text-sm pointer-events-auto h-fit">
             {options.map(option => {
                 const isSelected = option.value === selected
                 return (
