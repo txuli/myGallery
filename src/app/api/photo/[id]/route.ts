@@ -1,7 +1,9 @@
 import type { NextRequest } from "next/server"
 import { immichFetch, isPublicPhoto, PHOTO_SIZES, type PhotoSize } from "@/lib/immich"
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const PHOTO_REVALIDATE = 86400
+
+const UUID =/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 // Proxy de imágenes: añade la API key en el servidor y reenvía la respuesta de Immich.
 export async function GET(req: NextRequest, ctx: RouteContext<"/api/photo/[id]">) {
@@ -17,15 +19,19 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/photo/[id]">
         return new Response(null, { status: 404 })
     }
 
-    const res = await immichFetch(`/assets/${id}/thumbnail?size=${size}`)
+    // La imagen se guarda en la caché de datos de Next: Immich sólo la sirve una vez al día por foto y tamaño
+    const res = await immichFetch(`/assets/${id}/thumbnail?size=${size}`, {
+        next: { revalidate: PHOTO_REVALIDATE },
+    })
     if (!res.ok) {
+        console.error(`Immich respondió ${res.status} al pedir la foto ${id} (${size})`)
         return new Response(null, { status: res.status })
     }
 
     return new Response(res.body, {
         headers: {
             "Content-Type": res.headers.get("Content-Type") ?? "image/jpeg",
-            "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800",
+            "Cache-Control": `public, max-age=${PHOTO_REVALIDATE}, stale-while-revalidate=604800`,
         },
     })
 }

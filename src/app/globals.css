@@ -37,6 +37,35 @@
   }
 }
 
+/* Hueco libre para la foto en cada sección (focus.tsx lo usa para calcular su tamaño).
+   Móvil: la cabecera ocupa dos filas y los datos de la toma van abajo, así que se reserva
+   sitio arriba y abajo con padding. Escritorio: basta un margen, el panel lateral se superpone. */
+@layer components {
+  .photo-slot {
+    --photo-pad-top: 112px;
+    --photo-pad-bottom: 156px;
+    --photo-max-h: calc(100dvh - var(--photo-pad-top) - var(--photo-pad-bottom));
+    --photo-max-w: calc(100vw - 32px);
+    padding-top: var(--photo-pad-top);
+    padding-bottom: var(--photo-pad-bottom);
+  }
+
+  @media (width >= 48rem) {
+    .photo-slot {
+      --photo-pad-top: 64px;
+      --photo-pad-bottom: 64px;
+      --photo-max-w: calc(100vw - 2 * clamp(24px, 5vw, 72px));
+    }
+  }
+
+  /* Pantalla completa: toda la pantalla es hueco */
+  .photo-slot[data-expanded="true"] {
+    --photo-pad-top: 0px;
+    --photo-pad-bottom: 0px;
+    --photo-max-w: 100vw;
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
